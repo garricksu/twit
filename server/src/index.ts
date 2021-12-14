@@ -7,6 +7,10 @@ import { ApolloServer } from 'apollo-server-express'
 import { buildSchema } from 'type-graphql'
 import { UserResolver } from './resolvers/user'
 import cors from 'cors'
+import connectRedis from 'connect-redis'
+import session from 'express-session'
+import Redis from 'ioredis'
+import { COOKIE_NAME, __prod__ } from './constants'
 
 const main = async () => {
   const app = express()
@@ -22,10 +26,32 @@ const main = async () => {
     synchronize: true,
   })
 
+  const RedisStore = connectRedis(session)
+  const redis = new Redis()
+
   app.use(
     cors({
       origin: 'http://localhost:3000',
       credentials: true,
+    })
+  )
+
+  app.use(
+    session({
+      name: COOKIE_NAME,
+      store: new RedisStore({
+        client: redis,
+        disableTouch: true,
+      }),
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+        httpOnly: true,
+        sameSite: 'lax', // csrf
+        secure: __prod__, // cookie only works in https
+      },
+      saveUninitialized: false,
+      secret: 'camithepirate',
+      resave: false,
     })
   )
 
@@ -34,9 +60,10 @@ const main = async () => {
       resolvers: [UserResolver],
       validate: false,
     }),
-    context: ({ req }) => {
-      req
-    },
+    context: ({ req, res }) => ({
+      req,
+      res,
+    }),
   })
 
   await apolloServer.start()
