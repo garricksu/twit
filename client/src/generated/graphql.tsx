@@ -17,8 +17,31 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type LoginUserInput = {
+  emailOrUsername: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  login: User;
+  logout: Scalars['Boolean'];
+  register: User;
+};
+
+
+export type MutationLoginArgs = {
+  data: LoginUserInput;
+};
+
+
+export type MutationRegisterArgs = {
+  data: RegisterUserInput;
+};
+
 export type Query = {
   __typename?: 'Query';
+  currentUser?: Maybe<User>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
 };
@@ -28,6 +51,14 @@ export type QueryUserArgs = {
   userId: Scalars['Int'];
 };
 
+export type RegisterUserInput = {
+  email: Scalars['String'];
+  firstName: Scalars['String'];
+  lastName: Scalars['String'];
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
 export type User = {
   __typename?: 'User';
   createdAt: Scalars['DateTime'];
@@ -35,7 +66,6 @@ export type User = {
   firstName: Scalars['String'];
   id: Scalars['Float'];
   lastName: Scalars['String'];
-  password: Scalars['String'];
   updatedAt: Scalars['DateTime'];
   username: Scalars['String'];
 };
@@ -45,12 +75,12 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string, password: string } | null | undefined };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined };
 
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string, password: string }> | null | undefined };
+export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string }> | null | undefined };
 
 
 export const UserDocument = gql`
@@ -61,7 +91,6 @@ export const UserDocument = gql`
     lastName
     username
     email
-    password
   }
 }
     `;
@@ -101,7 +130,6 @@ export const UsersDocument = gql`
     lastName
     username
     email
-    password
   }
 }
     `;

@@ -5,6 +5,5 @@ query Users {
     lastName
     username
     email
-    password
   }
 }

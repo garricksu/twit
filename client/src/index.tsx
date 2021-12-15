@@ -1,6 +1,9 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import ReactDOM from 'react-dom'
-import App from './App'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Register from './pages/Register'
+import './styles/App.scss'
 
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql',
@@ -9,7 +12,12 @@ const client = new ApolloClient({
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/register' element={<Register />} />
+      </Routes>
+    </BrowserRouter>
   </ApolloProvider>,
   document.getElementById('root')
 )

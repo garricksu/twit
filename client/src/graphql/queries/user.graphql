@@ -5,6 +5,5 @@ query User ($userId: Int!) {
     lastName
     username
     email
-    password
   }
 }
