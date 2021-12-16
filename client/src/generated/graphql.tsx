@@ -36,7 +36,7 @@ export type MutationLoginArgs = {
 
 
 export type MutationRegisterArgs = {
-  data: RegisterUserInput;
+  input: RegisterUserInput;
 };
 
 export type Query = {
@@ -70,30 +70,77 @@ export type User = {
   username: Scalars['String'];
 };
 
+export type RegularUserFragment = { __typename?: 'User', id: number, firstName: string, lastName: string, username: string };
+
+export type RegisterUserMutationVariables = Exact<{
+  input: RegisterUserInput;
+}>;
+
+
+export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'User', email: string, id: number, firstName: string, lastName: string, username: string } };
+
 export type UserQueryVariables = Exact<{
   userId: Scalars['Int'];
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', email: string, id: number, firstName: string, lastName: string, username: string } | null | undefined };
 
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string }> | null | undefined };
+export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', email: string, id: number, firstName: string, lastName: string, username: string }> | null | undefined };
 
-
-export const UserDocument = gql`
-    query User($userId: Int!) {
-  user(userId: $userId) {
-    id
-    firstName
-    lastName
-    username
+export const RegularUserFragmentDoc = gql`
+    fragment RegularUser on User {
+  id
+  firstName
+  lastName
+  username
+}
+    `;
+export const RegisterUserDocument = gql`
+    mutation registerUser($input: RegisterUserInput!) {
+  register(input: $input) {
+    ...RegularUser
     email
   }
 }
-    `;
+    ${RegularUserFragmentDoc}`;
+export type RegisterUserMutationFn = Apollo.MutationFunction<RegisterUserMutation, RegisterUserMutationVariables>;
+
+/**
+ * __useRegisterUserMutation__
+ *
+ * To run a mutation, you first call `useRegisterUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerUserMutation, { data, loading, error }] = useRegisterUserMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRegisterUserMutation(baseOptions?: Apollo.MutationHookOptions<RegisterUserMutation, RegisterUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument, options);
+      }
+export type RegisterUserMutationHookResult = ReturnType<typeof useRegisterUserMutation>;
+export type RegisterUserMutationResult = Apollo.MutationResult<RegisterUserMutation>;
+export type RegisterUserMutationOptions = Apollo.BaseMutationOptions<RegisterUserMutation, RegisterUserMutationVariables>;
+export const UserDocument = gql`
+    query User($userId: Int!) {
+  user(userId: $userId) {
+    ...RegularUser
+    email
+  }
+}
+    ${RegularUserFragmentDoc}`;
 
 /**
  * __useUserQuery__
@@ -125,14 +172,11 @@ export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;
 export const UsersDocument = gql`
     query Users {
   users {
-    id
-    firstName
-    lastName
-    username
+    ...RegularUser
     email
   }
 }
-    `;
+    ${RegularUserFragmentDoc}`;
 
 /**
  * __useUsersQuery__

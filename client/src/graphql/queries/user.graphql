@@ -1,9 +1,6 @@
-query User ($userId: Int!) {
+query User($userId: Int!) {
   user(userId: $userId) {
-    id
-    firstName
-    lastName
-    username
+    ...RegularUser
     email
   }
 }
