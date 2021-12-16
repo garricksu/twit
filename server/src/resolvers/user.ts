@@ -67,7 +67,7 @@ export class UserResolver {
 
   @Mutation(() => User)
   async register(
-    @Arg('data') newUserData: RegisterUserInput,
+    @Arg('input') newUserData: RegisterUserInput,
     @Ctx() { req }: MyContext
   ): Promise<User> {
     const { firstName, lastName, email, username, password } = newUserData
