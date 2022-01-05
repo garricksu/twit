@@ -4,6 +4,7 @@
    "description": "Awesome project developed with TypeORM.",
    "devDependencies": {
       "@types/connect-redis": "^0.0.18",
+      "@types/cors": "^2.8.12",
       "@types/express-session": "^1.17.4",
       "@types/graphql": "^14.5.0",
       "@types/ioredis": "^4.28.3",

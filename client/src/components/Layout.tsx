@@ -1,6 +1,5 @@
 import React from 'react'
 import { Container } from 'react-bootstrap'
-import { Errors } from '../components/Errors'
 
 interface LayoutProps {}
 

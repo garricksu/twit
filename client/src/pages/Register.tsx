@@ -44,14 +44,30 @@ const Register = () => {
         {(formik) => (
           <Form className='user-form' onSubmit={formik.handleSubmit}>
             <Row className='user-form-row'>
-              <FormInputField label='First Name' name='firstName' />
-              <FormInputField label='Last Name' name='lastName' />
+              <FormInputField 
+                label='First Name' 
+                name='firstName' 
+                type='text' 
+              />
+              <FormInputField 
+                label='Last Name' 
+                name='lastName' 
+                type='text' 
+              />
             </Row>
             <Row className='user-form-row'>
-              <FormInputField label='Email' name='email' />
+              <FormInputField 
+                label='Email' 
+                name='email' 
+                type='text' 
+              />
             </Row>
             <Row className='user-form-row'>
-              <FormInputField label='Username' name='username' />
+              <FormInputField 
+                label='Username' 
+                name='username' 
+                type='text' 
+              />
             </Row>
             <Row className='user-form-row'>
               <FormInputField

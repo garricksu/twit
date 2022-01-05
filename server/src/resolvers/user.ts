@@ -6,12 +6,13 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
 } from 'type-graphql'
 import argon2 from 'argon2'
 import { MyContext } from '../types'
-import { UserInputError, ValidationError } from 'apollo-server-errors'
+import { UserInputError } from 'apollo-server-errors'
 import { getConnection } from 'typeorm'
 import { COOKIE_NAME } from '../constants'
 
@@ -42,6 +43,24 @@ class RegisterUserInput implements Partial<User> {
   lastName: string
 }
 
+@ObjectType()
+class FieldError {
+  @Field()
+  field: string
+
+  @Field()
+  message: string
+}
+
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[]
+
+  @Field(() => User, { nullable: true })
+  user?: User
+}
+
 @Resolver(User)
 export class UserResolver {
   // return all users
@@ -65,13 +84,14 @@ export class UserResolver {
     return User.findOne(req.session.userId)
   }
 
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async register(
     @Arg('input') newUserData: RegisterUserInput,
     @Ctx() { req }: MyContext
-  ): Promise<User> {
+  ): Promise<UserResponse> {
     const { firstName, lastName, email, username, password } = newUserData
     const hashedPassword = await argon2.hash(password)
+    let user
     try {
       const result = await getConnection()
         .createQueryBuilder()
@@ -83,40 +103,75 @@ export class UserResolver {
         .returning('id, "firstName", "lastName", email, username')
         .execute()
 
-      const user = result.raw[0]
+      user = result.raw[0]
       req.session.userId = user.id
-      console.log(user.id)
-      console.log(result.raw[0])
-      return user
     } catch (err) {
       if (err.code === '23505' && err.detail.includes('email')) {
-        throw new ValidationError('An account with this email already exists.')
+        return {
+          errors: [
+            {
+              field: 'email',
+              message: 'An account with this email already exists',
+            },
+          ],
+        }
       } else if (err.code === '23505' && err.detail.includes('username')) {
-        throw new ValidationError(
-          'This username is not available. Please try again.'
-        )
+        return {
+          errors: [
+            {
+              field: 'username',
+              message: 'This username is not available',
+            },
+          ],
+        }
       } else {
-        throw new Error('Internal server error')
+        return {
+          errors: [
+            {
+              field: '',
+              message: 'Interntal server error.',
+            },
+          ],
+        }
       }
     }
+    return { user }
   }
 
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async login(
-    @Arg('data') loginInput: LoginUserInput,
+    @Arg('input') loginInput: LoginUserInput,
     @Ctx() { req }: MyContext
-  ): Promise<User> {
+  ): Promise<UserResponse> {
     const { emailOrUsername, password } = loginInput
-    const user = await User.findOne({ where: { email: emailOrUsername } })
+    const user = await User.findOne(
+      emailOrUsername.includes('@')
+        ? { where: { email: emailOrUsername } }
+        : { where: { username: emailOrUsername } }
+    )
     if (!user) {
-      throw new UserInputError('Invalid username or password')
+      return {
+        errors: [
+          {
+            field: 'emailOrUsername',
+            message: 'Invalid email/username or password',
+          },
+        ],
+      }
     } else if (await argon2.verify(user.password, password)) {
       req.session.userId = user.id
     } else {
-      throw new UserInputError('Invalid username or password')
+      return {
+        errors: [
+          {
+            field: 'emailOrUsername',
+            message: 'Invalid email/username or password',
+          },
+        ],
+      }
     }
 
-    return user
+    return { user }
   }
 
   @Mutation(() => Boolean)
