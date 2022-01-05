@@ -4,11 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Register from './pages/Register'
 import './styles/App.scss'
-
-const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
-  cache: new InMemoryCache(),
-})
+import { client } from './utils/createApolloClient'
 
 ReactDOM.render(
   <ApolloProvider client={client}>

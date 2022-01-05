@@ -1,6 +1,5 @@
 mutation registerUser($input: RegisterUserInput!) {
   register(input: $input) {
-    ...RegularUser
-    email
+    ...RegularUserResponse
   }
 }
