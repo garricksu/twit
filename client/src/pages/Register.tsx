@@ -4,7 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { FormInputField } from '../components/FormInputField'
 import { Layout } from '../components/Layout'
-import { useRegisterUserMutation } from '../generated/graphql'
+import { UserSideBar } from '../components/UserSideBar'
+import {
+  CurrentUserDocument,
+  CurrentUserQuery,
+  useRegisterUserMutation,
+} from '../generated/graphql'
 import { mapErrors } from '../utils/mapErrors'
 
 const Register = () => {
@@ -12,7 +17,7 @@ const Register = () => {
   const [register] = useRegisterUserMutation()
 
   return (
-    <Layout>
+    <Layout sideBar={<UserSideBar />}>
       <Formik
         initialValues={{
           firstName: '',
@@ -31,43 +36,36 @@ const Register = () => {
           password: Yup.string().required('Required'),
         })}
         onSubmit={async (values, { setErrors }) => {
-          const response = await register({ variables: { input: values } })
+          const response = await register({
+            variables: { input: values },
+            update: (cache, { data }) => {
+              if (response.data?.register.user) {
+                cache.writeQuery<CurrentUserQuery>({
+                  query: CurrentUserDocument,
+                  data: {
+                    currentUser: data?.register.user,
+                  },
+                })
+                navigate('/')
+              }
+            },
+          })
           if (response.data?.register.errors) {
-            console.log(response.data?.register.errors)
             setErrors(mapErrors(response.data?.register.errors))
-          } else if (response.data?.register.user) {
-            console.log(response.data?.register.user)
-            navigate('/')
           }
         }}
       >
         {(formik) => (
           <Form className='user-form' onSubmit={formik.handleSubmit}>
             <Row className='user-form-row'>
-              <FormInputField 
-                label='First Name' 
-                name='firstName' 
-                type='text' 
-              />
-              <FormInputField 
-                label='Last Name' 
-                name='lastName' 
-                type='text' 
-              />
+              <FormInputField label='First Name' name='firstName' type='text' />
+              <FormInputField label='Last Name' name='lastName' type='text' />
             </Row>
             <Row className='user-form-row'>
-              <FormInputField 
-                label='Email' 
-                name='email' 
-                type='text' 
-              />
+              <FormInputField label='Email' name='email' type='text' />
             </Row>
             <Row className='user-form-row'>
-              <FormInputField 
-                label='Username' 
-                name='username' 
-                type='text' 
-              />
+              <FormInputField label='Username' name='username' type='text' />
             </Row>
             <Row className='user-form-row'>
               <FormInputField

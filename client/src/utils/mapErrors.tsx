@@ -1,4 +1,3 @@
-import React from 'react'
 import { FieldError } from '../generated/graphql'
 
 // reshape error for formik setError function

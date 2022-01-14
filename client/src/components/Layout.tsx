@@ -1,14 +1,28 @@
 import React from 'react'
-import { Container } from 'react-bootstrap'
+import { Col, Container, Row } from 'react-bootstrap'
+import { JsxElement } from 'typescript'
+import { NavBar } from './NavBar'
 
-interface LayoutProps {}
+interface LayoutProps {
+  sideBar: JSX.Element
+}
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, sideBar }) => {
   return (
-    <>
-      <h1>hello</h1>
-
-      <Container className='py-5'>{children}</Container>
-    </>
+    <div className='base-page'>
+      <Container className='py-5'>
+        <Row>
+          <Col>
+            <NavBar />
+          </Col>
+          <Col xs={6} className='content-col'>
+            {children}
+          </Col>
+          <Col>
+            {sideBar}
+          </Col>
+        </Row>
+      </Container>
+    </div>
   )
 }

@@ -1,6 +1,5 @@
 query Users {
   users {
     ...RegularUser
-    email
   }
 }

@@ -4,15 +4,20 @@ import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { FormInputField } from '../components/FormInputField'
 import { Layout } from '../components/Layout'
-import { useLoginUserMutation } from '../generated/graphql'
+import { UserSideBar } from '../components/UserSideBar'
+import {
+  CurrentUserDocument,
+  CurrentUserQuery,
+  useLoginUserMutation,
+} from '../generated/graphql'
 import { mapErrors } from '../utils/mapErrors'
 
 const Login = () => {
   const navigate = useNavigate()
-  const [login, error] = useLoginUserMutation()
+  const [login] = useLoginUserMutation()
 
   return (
-    <Layout>
+    <Layout sideBar={<UserSideBar />}>
       <Formik
         initialValues={{
           emailOrUsername: '',
@@ -23,16 +28,23 @@ const Login = () => {
           password: Yup.string().required('Required'),
         })}
         onSubmit={async (values, { setErrors }) => {
-          const response = await login({ variables: { input: values } })
-          if (error) {
-            console.log(error)
-          }
+          const response = await login({
+            variables: { input: values },
+
+            update: (cache, { data }) => {
+              if (data?.login.user) {
+                cache.writeQuery<CurrentUserQuery>({
+                  query: CurrentUserDocument,
+                  data: {
+                    currentUser: data?.login.user,
+                  },
+                })
+                navigate('/')
+              }
+            },
+          })
           if (response.data?.login.errors) {
-            console.log(response.data?.login.errors)
             setErrors(mapErrors(response.data?.login.errors))
-          } else if (response.data?.login.user) {
-            console.log(response)
-            navigate('/')
           }
         }}
       >
