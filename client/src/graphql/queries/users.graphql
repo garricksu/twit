@@ -1,10 +1,5 @@
 query Users {
   users {
-    id
-    firstName
-    lastName
-    username
-    email
-    password
+    ...RegularUser
   }
 }

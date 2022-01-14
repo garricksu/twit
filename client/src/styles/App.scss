@@ -1,0 +1,58 @@
+$primary: (#7800ad);
+html{
+  height: 100%;
+}
+
+body {
+  @extend .bg-dark;
+  @extend .text-light;
+
+  min-height: 100%;
+
+  #root {
+    height: 100% !important;
+  }
+
+  a, button {
+    text-decoration: none;
+    &:visited {
+      @extend .text-light
+    }
+  }
+  
+}
+
+.base-page {
+  height: 100%;
+
+  .content-col {
+    @extend .border-start;
+    @extend .border-end;
+    @extend .border-light;
+    @extend .border-1;
+    height: 100%;
+  }
+}
+
+.main-nav {
+  @extend .flex-column;
+  @extend .px-5;
+  @extend .align-items-start;
+
+  &-button {
+    @extend .fw-bold;
+    @extend .fs-5;
+  }
+}
+
+.user-form {
+  max-width: 600px;
+  margin: auto;
+
+
+  &-row {
+    @extend .mb-3;
+  }
+}
+
+@import '~bootstrap/scss/bootstrap';
