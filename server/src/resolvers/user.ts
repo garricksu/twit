@@ -1,65 +1,18 @@
-import { User } from '../entities/User'
+import argon2 from 'argon2'
 import {
   Arg,
-  Ctx,
-  Field,
-  InputType,
-  Int,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
+  Ctx, Int,
+  Mutation, Query,
+  Resolver
 } from 'type-graphql'
-import argon2 from 'argon2'
-import { MyContext } from '../types'
-import { UserInputError } from 'apollo-server-errors'
 import { getConnection } from 'typeorm'
 import { COOKIE_NAME } from '../constants'
-
-@InputType()
-class LoginUserInput {
-  @Field()
-  emailOrUsername: string
-
-  @Field()
-  password: string
-}
-
-@InputType()
-class RegisterUserInput implements Partial<User> {
-  @Field()
-  email: string
-
-  @Field()
-  username: string
-
-  @Field()
-  password: string
-
-  @Field()
-  firstName: string
-
-  @Field()
-  lastName: string
-}
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string
-
-  @Field()
-  message: string
-}
-
-@ObjectType()
-class UserResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[]
-
-  @Field(() => User, { nullable: true })
-  user?: User
-}
+import {
+  LoginUserInput, RegisterUserInput, UserProfile,
+  UserResponse
+} from '../entities/types/userTypes'
+import { User } from '../entities/User'
+import { MyContext } from '../types'
 
 @Resolver(User)
 export class UserResolver {
@@ -76,12 +29,14 @@ export class UserResolver {
     return user
   }
 
-  @Query(() => User, { nullable: true })
+  @Query(() => UserProfile, { nullable: true })
   async currentUser(@Ctx() { req }: MyContext) {
     if (!req.session.userId) {
       return null
     }
-    return User.findOne(req.session.userId)
+    return await User.findOne(req.session.userId, {
+      select: ['id', 'username', 'email', 'firstName', 'lastName'],
+    })
   }
 
   @Mutation(() => UserResponse)
@@ -186,5 +141,25 @@ export class UserResolver {
         resolve(true)
       })
     )
+  }
+
+  @Query(() => [User])
+  async followers(@Arg('userId') userId: number): Promise<User[]> {
+    const followers = await User.createQueryBuilder('user')
+      .select('user.id, user.username, user.firstName, user.lastName')
+      .leftJoin('user.followers', 'subscription')
+      .where('subscription.userId = :userId', { userId })
+      .getRawMany()
+    return followers
+  }
+
+  @Query(() => [User])
+  async following(@Arg('userId') userId: number): Promise<User[]> {
+    const followers = await User.createQueryBuilder('user')
+      .select('user.id, user.username, user.firstName, user.lastName')
+      .leftJoin('user.following', 'subscription')
+      .where('subscription.followerId = :userId', { userId })
+      .getRawMany()
+    return followers
   }
 }

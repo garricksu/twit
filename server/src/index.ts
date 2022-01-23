@@ -11,6 +11,9 @@ import connectRedis from 'connect-redis'
 import session from 'express-session'
 import Redis from 'ioredis'
 import { COOKIE_NAME, __prod__ } from './constants'
+import { Tweet } from './entities/Tweet'
+import { TweetResolver } from './resolvers/tweet'
+import { Subscription } from './entities/Subscription'
 
 const main = async () => {
   const app = express()
@@ -21,10 +24,11 @@ const main = async () => {
     username: 'garricksu',
     password: '9628FatalGDS',
     logging: true,
-    entities: [User],
+    entities: [User, Tweet, Subscription],
     migrations: [path.join(__dirname, './migrations/*')],
     synchronize: true,
   })
+  connection.runMigrations()
 
   const RedisStore = connectRedis(session)
   const redis = new Redis()
@@ -57,7 +61,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, TweetResolver],
       validate: false,
     }),
     context: ({ req, res }) => ({

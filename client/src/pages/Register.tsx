@@ -39,7 +39,7 @@ const Register = () => {
           const response = await register({
             variables: { input: values },
             update: (cache, { data }) => {
-              if (response.data?.register.user) {
+              if (data?.register.user) {
                 cache.writeQuery<CurrentUserQuery>({
                   query: CurrentUserDocument,
                   data: {
