@@ -1,7 +1,6 @@
-fragment RegularUser on User {
+fragment RegularUser on UserProfile {
   id
   firstName
   lastName
   username
-  email
 }

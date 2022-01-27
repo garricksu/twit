@@ -8,7 +8,10 @@ import { UserSideBar } from '../components/UserSideBar'
 import {
   CurrentUserDocument,
   CurrentUserQuery,
+  TimelineTweetsDocument,
+  TimelineTweetsQuery,
   useLoginUserMutation,
+  useTimelineTweetsQuery,
 } from '../generated/graphql'
 import { mapErrors } from '../utils/mapErrors'
 
@@ -42,7 +45,7 @@ const Login = () => {
                 navigate('/')
               }
             },
-          })
+           })
           if (response.data?.login.errors) {
             setErrors(mapErrors(response.data?.login.errors))
           }

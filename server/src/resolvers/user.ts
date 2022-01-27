@@ -1,29 +1,26 @@
 import argon2 from 'argon2'
-import {
-  Arg,
-  Ctx, Int,
-  Mutation, Query,
-  Resolver
-} from 'type-graphql'
+import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql'
 import { getConnection } from 'typeorm'
 import { COOKIE_NAME } from '../constants'
 import {
-  LoginUserInput, RegisterUserInput, UserProfile,
-  UserResponse
+  LoginUserInput,
+  RegisterUserInput,
+  UserProfile,
+  UserResponse,
 } from '../entities/types/userTypes'
 import { User } from '../entities/User'
 import { MyContext } from '../types'
 
-@Resolver(User)
+@Resolver(UserProfile)
 export class UserResolver {
   // return all users
-  @Query(() => [User], { nullable: true })
+  @Query(() => [UserProfile], { nullable: true })
   async users(): Promise<User[]> {
     const users = await User.find()
     return users
   }
 
-  @Query(() => User, { nullable: true })
+  @Query(() => UserProfile, { nullable: true })
   async user(@Arg('userId', () => Int) userId: number) {
     const user = (await User.findOne(userId)) || null
     return user
@@ -125,7 +122,7 @@ export class UserResolver {
         ],
       }
     }
-
+    console.log('LOGIN')
     return { user }
   }
 
@@ -143,8 +140,8 @@ export class UserResolver {
     )
   }
 
-  @Query(() => [User])
-  async followers(@Arg('userId') userId: number): Promise<User[]> {
+  @Query(() => [UserProfile])
+  async followers(@Arg('userId') userId: number): Promise<UserProfile[]> {
     const followers = await User.createQueryBuilder('user')
       .select('user.id, user.username, user.firstName, user.lastName')
       .leftJoin('user.followers', 'subscription')
@@ -153,8 +150,8 @@ export class UserResolver {
     return followers
   }
 
-  @Query(() => [User])
-  async following(@Arg('userId') userId: number): Promise<User[]> {
+  @Query(() => [UserProfile])
+  async following(@Arg('userId') userId: number): Promise<UserProfile[]> {
     const followers = await User.createQueryBuilder('user')
       .select('user.id, user.username, user.firstName, user.lastName')
       .leftJoin('user.following', 'subscription')

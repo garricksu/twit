@@ -1,6 +1,5 @@
 import React from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
-import { JsxElement } from 'typescript'
 import { NavBar } from './NavBar'
 
 interface LayoutProps {

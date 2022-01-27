@@ -3,8 +3,9 @@ import {
   Ctx,
   Field,
   InputType,
-  Mutation, Query,
-  Resolver
+  Mutation,
+  Query,
+  Resolver,
 } from 'type-graphql'
 import { Tweet } from '../entities/Tweet'
 import { MyContext } from '../types'
@@ -43,19 +44,17 @@ export class TweetResolver {
   }
 
   // return all tweets
-  @Query(() => [Tweet])
-  async timelineTweets(@Ctx() { req }: MyContext): Promise<Tweet[]> {
-    const currentUserID = req.session.userId
+  @Query(() => [Tweet], { nullable: true })
+  async timelineTweets(@Ctx() { req }: MyContext): Promise<Tweet[] | null> {
     const userTweets = await Tweet.createQueryBuilder('tweet')
       .leftJoinAndSelect('tweet.user', 'user')
-      .where('tweet.userId = :userId', { userId: currentUserID })
+      .where('tweet.userId = :userId', { userId: req.session.userId })
       .leftJoin('user.following', 'subscription')
       .where('subscription.followerId = :userId OR user.id = :userId', {
-        userId: currentUserID,
+        userId: req.session.userId,
       })
       .orderBy('tweet.createdAt', 'DESC')
       .getMany()
-
     return userTweets
   }
 }

@@ -1,0 +1,14 @@
+query TimelineTweets {
+  timelineTweets {
+    id
+    textContent
+    createdAt
+    user {
+      id
+      username
+      firstName
+      lastName
+      email
+    }
+  }
+}

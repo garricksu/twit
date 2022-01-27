@@ -5,6 +5,8 @@ import {
   useLogoutUserMutation,
   CurrentUserQuery,
   CurrentUserDocument,
+  TimelineTweetsQuery,
+  TimelineTweetsDocument,
 } from '../generated/graphql'
 
 export const UserSideBar = ({}) => {
@@ -24,13 +26,20 @@ export const UserSideBar = ({}) => {
             onClick={async () => {
               await logout({
                 update: (cache, { data }) => {
-                  if (data?.logout)
+                  if (data?.logout) {
                     cache.writeQuery<CurrentUserQuery>({
                       query: CurrentUserDocument,
                       data: {
                         currentUser: null,
                       },
                     })
+                    cache.writeQuery<TimelineTweetsQuery>({
+                      query: TimelineTweetsDocument,
+                      data: {
+                        timelineTweets: null,
+                      },
+                    })
+                  }
                 },
               })
             }}

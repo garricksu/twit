@@ -30,9 +30,15 @@ export type LoginUserInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createTweet: Tweet;
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
+};
+
+
+export type MutationCreateTweetArgs = {
+  input: NewTweetInput;
 };
 
 
@@ -45,16 +51,40 @@ export type MutationRegisterArgs = {
   input: RegisterUserInput;
 };
 
+export type NewTweetInput = {
+  textContent: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
-  currentUser?: Maybe<User>;
-  user?: Maybe<User>;
-  users?: Maybe<Array<User>>;
+  currentUser?: Maybe<UserProfile>;
+  followers: Array<UserProfile>;
+  following: Array<UserProfile>;
+  timelineTweets?: Maybe<Array<Tweet>>;
+  tweets?: Maybe<Array<Tweet>>;
+  user?: Maybe<UserProfile>;
+  userTweets?: Maybe<Array<Tweet>>;
+  users?: Maybe<Array<UserProfile>>;
+};
+
+
+export type QueryFollowersArgs = {
+  userId: Scalars['Float'];
+};
+
+
+export type QueryFollowingArgs = {
+  userId: Scalars['Float'];
 };
 
 
 export type QueryUserArgs = {
   userId: Scalars['Int'];
+};
+
+
+export type QueryUserTweetsArgs = {
+  userId: Scalars['Float'];
 };
 
 export type RegisterUserInput = {
@@ -65,35 +95,41 @@ export type RegisterUserInput = {
   username: Scalars['String'];
 };
 
-export type User = {
-  __typename?: 'User';
+export type Tweet = {
+  __typename?: 'Tweet';
   createdAt: Scalars['DateTime'];
+  id: Scalars['Float'];
+  textContent: Scalars['String'];
+  user: UserProfile;
+};
+
+export type UserProfile = {
+  __typename?: 'UserProfile';
   email: Scalars['String'];
   firstName: Scalars['String'];
   id: Scalars['Float'];
   lastName: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
   username: Scalars['String'];
 };
 
 export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
-  user?: Maybe<User>;
+  user?: Maybe<UserProfile>;
 };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type RegularUserFragment = { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string };
+export type RegularUserFragment = { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string };
 
-export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined };
+export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
 }>;
 
 
-export type LoginUserMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined } };
+export type LoginUserMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined } };
 
 export type LogoutUserMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -105,24 +141,29 @@ export type RegisterUserMutationVariables = Exact<{
 }>;
 
 
-export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined } };
+export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined } };
 
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined };
+export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined };
+
+export type TimelineTweetsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TimelineTweetsQuery = { __typename?: 'Query', timelineTweets?: Array<{ __typename?: 'Tweet', id: number, textContent: string, createdAt: any, user: { __typename?: 'UserProfile', id: number, username: string, firstName: string, lastName: string, email: string } }> | null | undefined };
 
 export type UserQueryVariables = Exact<{
   userId: Scalars['Int'];
 }>;
 
 
-export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string } | null | undefined };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined };
 
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: number, firstName: string, lastName: string, username: string, email: string }> | null | undefined };
+export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string }> | null | undefined };
 
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
@@ -131,12 +172,11 @@ export const RegularErrorFragmentDoc = gql`
 }
     `;
 export const RegularUserFragmentDoc = gql`
-    fragment RegularUser on User {
+    fragment RegularUser on UserProfile {
   id
   firstName
   lastName
   username
-  email
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`
@@ -280,6 +320,49 @@ export function useCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = Apollo.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
+export const TimelineTweetsDocument = gql`
+    query TimelineTweets {
+  timelineTweets {
+    id
+    textContent
+    createdAt
+    user {
+      id
+      username
+      firstName
+      lastName
+      email
+    }
+  }
+}
+    `;
+
+/**
+ * __useTimelineTweetsQuery__
+ *
+ * To run a query within a React component, call `useTimelineTweetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTimelineTweetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTimelineTweetsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTimelineTweetsQuery(baseOptions?: Apollo.QueryHookOptions<TimelineTweetsQuery, TimelineTweetsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TimelineTweetsQuery, TimelineTweetsQueryVariables>(TimelineTweetsDocument, options);
+      }
+export function useTimelineTweetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TimelineTweetsQuery, TimelineTweetsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TimelineTweetsQuery, TimelineTweetsQueryVariables>(TimelineTweetsDocument, options);
+        }
+export type TimelineTweetsQueryHookResult = ReturnType<typeof useTimelineTweetsQuery>;
+export type TimelineTweetsLazyQueryHookResult = ReturnType<typeof useTimelineTweetsLazyQuery>;
+export type TimelineTweetsQueryResult = Apollo.QueryResult<TimelineTweetsQuery, TimelineTweetsQueryVariables>;
 export const UserDocument = gql`
     query User($userId: Int!) {
   user(userId: $userId) {
