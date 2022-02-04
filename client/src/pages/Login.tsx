@@ -8,19 +8,20 @@ import { UserSideBar } from '../components/UserSideBar'
 import {
   CurrentUserDocument,
   CurrentUserQuery,
-  TimelineTweetsDocument,
-  TimelineTweetsQuery,
-  useLoginUserMutation,
-  useTimelineTweetsQuery,
+  useLoginUserMutation
 } from '../generated/graphql'
+import { client } from '../utils/createApolloClient'
 import { mapErrors } from '../utils/mapErrors'
 
 const Login = () => {
   const navigate = useNavigate()
   const [login] = useLoginUserMutation()
+  const data = client.readQuery<CurrentUserQuery>({
+    query: CurrentUserDocument,
+  })
 
   return (
-    <Layout sideBar={<UserSideBar />}>
+    <Layout sideBar={<UserSideBar navigate={navigate} />}>
       <Formik
         initialValues={{
           emailOrUsername: '',
@@ -42,10 +43,11 @@ const Login = () => {
                     currentUser: data?.login.user,
                   },
                 })
+
                 navigate('/')
               }
             },
-           })
+          })
           if (response.data?.login.errors) {
             setErrors(mapErrors(response.data?.login.errors))
           }

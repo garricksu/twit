@@ -1,14 +1,17 @@
-query TimelineTweets {
-  timelineTweets {
-    id
-    textContent
-    createdAt
-    user {
+query TimelineTweets($cursor: String) {
+  timelineTweets(cursor: $cursor) {
+    tweets {
       id
-      username
-      firstName
-      lastName
-      email
+      textContent
+      createdAt
+      user {
+        id
+        username
+        firstName
+        lastName
+        email
+      }
     }
+    hasMore
   }
 }

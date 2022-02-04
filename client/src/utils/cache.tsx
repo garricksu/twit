@@ -4,9 +4,24 @@ export const currentUser = makeVar([])
 
 export const cache = new InMemoryCache({
   typePolicies: {
-    User: {
-      keyFields: ['id'],
+    Query: {
+      fields: {
+        timelineTweets: {
+          keyArgs: false,
+          merge(existing = { tweets: [] }, incoming) {
+            if (incoming)
+              return {
+                tweets: [...existing.tweets, ...incoming.tweets],
+                hasMore: incoming.hasMore,
+              }
+            else
+              return {
+                tweets: [],
+                hasMore: null,
+              }
+          },
+        },
+      },
     },
-    
   },
 })

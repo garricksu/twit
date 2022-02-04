@@ -17,7 +17,7 @@ const Register = () => {
   const [register] = useRegisterUserMutation()
 
   return (
-    <Layout sideBar={<UserSideBar />}>
+    <Layout sideBar={<UserSideBar navigate={navigate} />}>
       <Formik
         initialValues={{
           firstName: '',

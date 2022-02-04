@@ -60,7 +60,7 @@ export type Query = {
   currentUser?: Maybe<UserProfile>;
   followers: Array<UserProfile>;
   following: Array<UserProfile>;
-  timelineTweets?: Maybe<Array<Tweet>>;
+  timelineTweets?: Maybe<PaginatedTweets>;
   tweets?: Maybe<Array<Tweet>>;
   user?: Maybe<UserProfile>;
   userTweets?: Maybe<Array<Tweet>>;
@@ -75,6 +75,11 @@ export type QueryFollowersArgs = {
 
 export type QueryFollowingArgs = {
   userId: Scalars['Float'];
+};
+
+
+export type QueryTimelineTweetsArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -118,11 +123,24 @@ export type UserResponse = {
   user?: Maybe<UserProfile>;
 };
 
+export type PaginatedTweets = {
+  __typename?: 'paginatedTweets';
+  hasMore: Scalars['Boolean'];
+  tweets?: Maybe<Array<Tweet>>;
+};
+
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
 export type RegularUserFragment = { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string };
 
 export type RegularUserResponseFragment = { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined };
+
+export type CreateTweetMutationVariables = Exact<{
+  textContent: Scalars['String'];
+}>;
+
+
+export type CreateTweetMutation = { __typename?: 'Mutation', createTweet: { __typename?: 'Tweet', id: number, textContent: string, createdAt: any } };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
@@ -148,10 +166,12 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined };
 
-export type TimelineTweetsQueryVariables = Exact<{ [key: string]: never; }>;
+export type TimelineTweetsQueryVariables = Exact<{
+  cursor?: InputMaybe<Scalars['String']>;
+}>;
 
 
-export type TimelineTweetsQuery = { __typename?: 'Query', timelineTweets?: Array<{ __typename?: 'Tweet', id: number, textContent: string, createdAt: any, user: { __typename?: 'UserProfile', id: number, username: string, firstName: string, lastName: string, email: string } }> | null | undefined };
+export type TimelineTweetsQuery = { __typename?: 'Query', timelineTweets?: { __typename?: 'paginatedTweets', hasMore: boolean, tweets?: Array<{ __typename?: 'Tweet', id: number, textContent: string, createdAt: any, user: { __typename?: 'UserProfile', id: number, username: string, firstName: string, lastName: string, email: string } }> | null | undefined } | null | undefined };
 
 export type UserQueryVariables = Exact<{
   userId: Scalars['Int'];
@@ -190,6 +210,41 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const CreateTweetDocument = gql`
+    mutation CreateTweet($textContent: String!) {
+  createTweet(input: {textContent: $textContent}) {
+    id
+    textContent
+    createdAt
+  }
+}
+    `;
+export type CreateTweetMutationFn = Apollo.MutationFunction<CreateTweetMutation, CreateTweetMutationVariables>;
+
+/**
+ * __useCreateTweetMutation__
+ *
+ * To run a mutation, you first call `useCreateTweetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTweetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTweetMutation, { data, loading, error }] = useCreateTweetMutation({
+ *   variables: {
+ *      textContent: // value for 'textContent'
+ *   },
+ * });
+ */
+export function useCreateTweetMutation(baseOptions?: Apollo.MutationHookOptions<CreateTweetMutation, CreateTweetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTweetMutation, CreateTweetMutationVariables>(CreateTweetDocument, options);
+      }
+export type CreateTweetMutationHookResult = ReturnType<typeof useCreateTweetMutation>;
+export type CreateTweetMutationResult = Apollo.MutationResult<CreateTweetMutation>;
+export type CreateTweetMutationOptions = Apollo.BaseMutationOptions<CreateTweetMutation, CreateTweetMutationVariables>;
 export const LoginUserDocument = gql`
     mutation LoginUser($input: LoginUserInput!) {
   login(input: $input) {
@@ -321,18 +376,21 @@ export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = Apollo.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
 export const TimelineTweetsDocument = gql`
-    query TimelineTweets {
-  timelineTweets {
-    id
-    textContent
-    createdAt
-    user {
+    query TimelineTweets($cursor: String) {
+  timelineTweets(cursor: $cursor) {
+    tweets {
       id
-      username
-      firstName
-      lastName
-      email
+      textContent
+      createdAt
+      user {
+        id
+        username
+        firstName
+        lastName
+        email
+      }
     }
+    hasMore
   }
 }
     `;
@@ -349,6 +407,7 @@ export const TimelineTweetsDocument = gql`
  * @example
  * const { data, loading, error } = useTimelineTweetsQuery({
  *   variables: {
+ *      cursor: // value for 'cursor'
  *   },
  * });
  */

@@ -1,0 +1,7 @@
+mutation CreateTweet($textContent: String!) {
+  createTweet(input: { textContent: $textContent }) {
+    id
+    textContent
+    createdAt
+  }
+}

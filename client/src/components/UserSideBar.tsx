@@ -1,5 +1,5 @@
-import { Button, Nav } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Button, Nav, Spinner } from 'react-bootstrap'
+import { Link, NavigateFunction, useNavigate } from 'react-router-dom'
 import {
   useCurrentUserQuery,
   useLogoutUserMutation,
@@ -9,7 +9,11 @@ import {
   TimelineTweetsDocument,
 } from '../generated/graphql'
 
-export const UserSideBar = ({}) => {
+interface UserSideBarProps {
+  navigate: NavigateFunction
+}
+
+export const UserSideBar: React.FC<UserSideBarProps> = ({ navigate }) => {
   const { data, loading } = useCurrentUserQuery()
   const [logout] = useLogoutUserMutation()
 
@@ -39,6 +43,8 @@ export const UserSideBar = ({}) => {
                         timelineTweets: null,
                       },
                     })
+
+                    // navigate('/login')
                   }
                 },
               })

@@ -25,7 +25,7 @@ export class Tweet extends BaseEntity {
   textContent: string
 
   @Field()
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
   @Field(() => UserProfile)
