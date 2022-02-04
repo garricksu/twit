@@ -1,5 +1,5 @@
 $primary: (#7800ad);
-html{
+html {
   height: 100%;
 }
 
@@ -13,13 +13,13 @@ body {
     height: 100% !important;
   }
 
-  a, button {
+  a,
+  button {
     text-decoration: none;
     &:visited {
-      @extend .text-light
+      @extend .text-light;
     }
   }
-  
 }
 
 .base-page {
@@ -30,8 +30,24 @@ body {
     @extend .border-end;
     @extend .border-light;
     @extend .border-1;
+    @extend .px-0;
     height: 100%;
   }
+}
+.tweet {
+  &-profile-picture {
+    @extend .me-3;
+    border-radius: 50%;
+    height: 50px;
+  }
+}
+
+.textarea {
+  @extend .bg-dark;
+  @extend .text-light;
+  @extend .border-0;
+  resize: none;
+  height: 100px;
 }
 
 .main-nav {
@@ -48,7 +64,6 @@ body {
 .user-form {
   max-width: 600px;
   margin: auto;
-
 
   &-row {
     @extend .mb-3;

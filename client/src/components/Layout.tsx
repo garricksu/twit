@@ -9,17 +9,15 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children, sideBar }) => {
   return (
     <div className='base-page'>
-      <Container className='py-5'>
+      <Container>
         <Row>
-          <Col>
+          <Col className='py-4'>
             <NavBar />
           </Col>
-          <Col xs={6} className='content-col'>
+          <Col xs={6} className='content-col py-4'>
             {children}
           </Col>
-          <Col>
-            {sideBar}
-          </Col>
+          <Col className='py-4'>{sideBar}</Col>
         </Row>
       </Container>
     </div>
