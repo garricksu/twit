@@ -4,6 +4,8 @@ query TimelineTweets($cursor: String) {
       id
       textContent
       createdAt
+      likeCount
+      liked
       user {
         id
         username

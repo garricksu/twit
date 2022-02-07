@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
+import { TweetLikes } from './TweetLikes'
 import { UserProfile } from './types/userTypes'
 import { User } from './User'
 
@@ -31,4 +33,14 @@ export class Tweet extends BaseEntity {
   @Field(() => UserProfile)
   @ManyToOne(() => User, (user) => user.tweets)
   user: UserProfile
+
+  @Field(()=> [TweetLikes], {nullable: true})
+  @OneToMany(() => TweetLikes, like => like.tweet)
+  likes: TweetLikes[]
+
+  @Field()
+  likeCount: number
+
+  @Field()
+  liked: boolean
 }

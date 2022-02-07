@@ -35,7 +35,6 @@ export const CreateTweet = () => {
           placeholder={`What's new?`}
           className='mb-2 textarea'
         />
-
         <Button variant='primary' type='submit'>
           Tweet
         </Button>

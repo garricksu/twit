@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import './styles/App.scss'
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import { client } from './utils/createApolloClient'
 
 ReactDOM.render(

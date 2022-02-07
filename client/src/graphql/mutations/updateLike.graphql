@@ -1,0 +1,3 @@
+mutation UpdateLike ($tweetId: Int!, $liked: Boolean!) {
+  updateLike(tweetId: $tweetId, liked: $liked) 
+}

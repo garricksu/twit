@@ -14,6 +14,7 @@ import { COOKIE_NAME, __prod__ } from './constants'
 import { Tweet } from './entities/Tweet'
 import { TweetResolver } from './resolvers/tweet'
 import { Subscription } from './entities/Subscription'
+import { TweetLikes } from './entities/TweetLikes'
 
 const main = async () => {
   const app = express()
@@ -24,7 +25,7 @@ const main = async () => {
     username: 'garricksu',
     password: '9628FatalGDS',
     logging: true,
-    entities: [User, Tweet, Subscription],
+    entities: [User, Tweet, Subscription, TweetLikes],
     migrations: [path.join(__dirname, './migrations/*')],
     synchronize: true,
   })

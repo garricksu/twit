@@ -34,6 +34,7 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  updateLike: Scalars['Boolean'];
 };
 
 
@@ -51,8 +52,20 @@ export type MutationRegisterArgs = {
   input: RegisterUserInput;
 };
 
+
+export type MutationUpdateLikeArgs = {
+  liked: Scalars['Boolean'];
+  tweetId: Scalars['Int'];
+};
+
 export type NewTweetInput = {
   textContent: Scalars['String'];
+};
+
+export type PaginatedTweets = {
+  __typename?: 'PaginatedTweets';
+  hasMore: Scalars['Boolean'];
+  tweets?: Maybe<Array<Tweet>>;
 };
 
 export type Query = {
@@ -104,8 +117,17 @@ export type Tweet = {
   __typename?: 'Tweet';
   createdAt: Scalars['DateTime'];
   id: Scalars['Float'];
+  likeCount: Scalars['Float'];
+  liked: Scalars['Boolean'];
+  likes?: Maybe<Array<TweetLikes>>;
   textContent: Scalars['String'];
   user: UserProfile;
+};
+
+export type TweetLikes = {
+  __typename?: 'TweetLikes';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['Float'];
 };
 
 export type UserProfile = {
@@ -121,12 +143,6 @@ export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
   user?: Maybe<UserProfile>;
-};
-
-export type PaginatedTweets = {
-  __typename?: 'paginatedTweets';
-  hasMore: Scalars['Boolean'];
-  tweets?: Maybe<Array<Tweet>>;
 };
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
@@ -161,6 +177,14 @@ export type RegisterUserMutationVariables = Exact<{
 
 export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'UserProfile', id: number, firstName: string, lastName: string, username: string } | null | undefined } };
 
+export type UpdateLikeMutationVariables = Exact<{
+  tweetId: Scalars['Int'];
+  liked: Scalars['Boolean'];
+}>;
+
+
+export type UpdateLikeMutation = { __typename?: 'Mutation', updateLike: boolean };
+
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -171,7 +195,7 @@ export type TimelineTweetsQueryVariables = Exact<{
 }>;
 
 
-export type TimelineTweetsQuery = { __typename?: 'Query', timelineTweets?: { __typename?: 'paginatedTweets', hasMore: boolean, tweets?: Array<{ __typename?: 'Tweet', id: number, textContent: string, createdAt: any, user: { __typename?: 'UserProfile', id: number, username: string, firstName: string, lastName: string, email: string } }> | null | undefined } | null | undefined };
+export type TimelineTweetsQuery = { __typename?: 'Query', timelineTweets?: { __typename?: 'PaginatedTweets', hasMore: boolean, tweets?: Array<{ __typename?: 'Tweet', id: number, textContent: string, createdAt: any, likeCount: number, liked: boolean, user: { __typename?: 'UserProfile', id: number, username: string, firstName: string, lastName: string, email: string } }> | null | undefined } | null | undefined };
 
 export type UserQueryVariables = Exact<{
   userId: Scalars['Int'];
@@ -341,6 +365,38 @@ export function useRegisterUserMutation(baseOptions?: Apollo.MutationHookOptions
 export type RegisterUserMutationHookResult = ReturnType<typeof useRegisterUserMutation>;
 export type RegisterUserMutationResult = Apollo.MutationResult<RegisterUserMutation>;
 export type RegisterUserMutationOptions = Apollo.BaseMutationOptions<RegisterUserMutation, RegisterUserMutationVariables>;
+export const UpdateLikeDocument = gql`
+    mutation UpdateLike($tweetId: Int!, $liked: Boolean!) {
+  updateLike(tweetId: $tweetId, liked: $liked)
+}
+    `;
+export type UpdateLikeMutationFn = Apollo.MutationFunction<UpdateLikeMutation, UpdateLikeMutationVariables>;
+
+/**
+ * __useUpdateLikeMutation__
+ *
+ * To run a mutation, you first call `useUpdateLikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLikeMutation, { data, loading, error }] = useUpdateLikeMutation({
+ *   variables: {
+ *      tweetId: // value for 'tweetId'
+ *      liked: // value for 'liked'
+ *   },
+ * });
+ */
+export function useUpdateLikeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateLikeMutation, UpdateLikeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateLikeMutation, UpdateLikeMutationVariables>(UpdateLikeDocument, options);
+      }
+export type UpdateLikeMutationHookResult = ReturnType<typeof useUpdateLikeMutation>;
+export type UpdateLikeMutationResult = Apollo.MutationResult<UpdateLikeMutation>;
+export type UpdateLikeMutationOptions = Apollo.BaseMutationOptions<UpdateLikeMutation, UpdateLikeMutationVariables>;
 export const CurrentUserDocument = gql`
     query CurrentUser {
   currentUser {
@@ -382,6 +438,8 @@ export const TimelineTweetsDocument = gql`
       id
       textContent
       createdAt
+      likeCount
+      liked
       user {
         id
         username
