@@ -18,8 +18,8 @@ const main = async () => {
   const connection = await createConnection({
     type: 'postgres',
     database: 'twit',
-    username: 'garricksu',
-    password: '9628FatalGDS',
+    username: '...',
+    password: '...',
     logging: true,
     entities: [User],
     migrations: [path.join(__dirname, './migrations/*')],
